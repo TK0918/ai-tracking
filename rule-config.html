@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>自定义物流规则配置 - 虚拟物流单系统</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .rule-section {
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .rule-section:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+    .section-title {
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--primary-color);
+    }
+  </style>
+</head>
+<body>
+  <!-- 页面头部 -->
+  <header>
+    <div class="container">
+      <h1>虚拟物流单系统</h1>
+    </div>
+  </header>
+
+  <!-- 主内容区域 -->
+  <main class="container">
+    <div class="flex justify-between items-center mb-4">
+      <h2>自定义物流规则配置</h2>
+      <button class="btn btn-primary" data-drawer-target="rule-drawer" id="create-rule-btn">
+        <i class="fas fa-plus"></i> 新建规则模板
+      </button>
+    </div>
+
+    <!-- 规则模板列表 -->
+    <div class="card">
+      <div class="card-header">
+        <h3>规则模板列表</h3>
+      </div>
+      
+      <!-- 模板列表 -->
+      <div class="rule-list">
+        <!-- 规则模板卡片 -->
+        <div class="card">
+          <div class="flex justify-between items-center">
+            <div>
+              <h4>中性模板</h4>
+              <div class="mb-2">
+                <span class="tag">美国</span>
+                <span class="tag">加拿大</span>
+                <span class="tag">欧洲</span>
+              </div>
+              <div class="tracking-date">更新时间: 2023-10-15 10:30</div>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-outline btn-sm" data-drawer-target="rule-drawer">
+                <i class="fas fa-edit"></i> 编辑
+              </button>
+              <button class="btn btn-outline btn-sm">
+                <i class="fas fa-copy"></i> 复制
+              </button>
+              <button class="btn btn-outline btn-sm" onclick="confirmDeleteRule('中性模板')">
+                <i class="fas fa-trash"></i> 删除
+              </button>
+              <button class="btn btn-primary btn-sm">
+                <i class="fas fa-check"></i> 应用到订单
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 规则模板卡片 -->
+        <div class="card">
+          <div class="flex justify-between items-center">
+            <div>
+              <h4>快速模板</h4>
+              <div class="mb-2">
+                <span class="tag">美国</span>
+              </div>
+              <div class="tracking-date">更新时间: 2023-10-12 16:45</div>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-outline btn-sm" data-drawer-target="rule-drawer">
+                <i class="fas fa-edit"></i> 编辑
+              </button>
+              <button class="btn btn-outline btn-sm">
+                <i class="fas fa-copy"></i> 复制
+              </button>
+              <button class="btn btn-outline btn-sm" onclick="confirmDeleteRule('快速模板')">
+                <i class="fas fa-trash"></i> 删除
+              </button>
+              <button class="btn btn-primary btn-sm">
+                <i class="fas fa-check"></i> 应用到订单
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 规则模板卡片 -->
+        <div class="card">
+          <div class="flex justify-between items-center">
+            <div>
+              <h4>慢速模板</h4>
+              <div class="mb-2">
+                <span class="tag">亚洲</span>
+                <span class="tag">非洲</span>
+              </div>
+              <div class="tracking-date">更新时间: 2023-10-08 09:20</div>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-outline btn-sm" data-drawer-target="rule-drawer">
+                <i class="fas fa-edit"></i> 编辑
+              </button>
+              <button class="btn btn-outline btn-sm">
+                <i class="fas fa-copy"></i> 复制
+              </button>
+              <button class="btn btn-outline btn-sm" onclick="confirmDeleteRule('慢速模板')">
+                <i class="fas fa-trash"></i> 删除
+              </button>
+              <button class="btn btn-primary btn-sm">
+                <i class="fas fa-check"></i> 应用到订单
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 规则编辑抽屉 -->
+  <div class="drawer" id="rule-drawer">
+    <div class="drawer-header">
+      <h3>编辑规则模板</h3>
+      <button class="btn" data-drawer-close>
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="drawer-body">
+      <form id="rule-form">
+        <!-- 规则基本信息 -->
+        <div class="rule-section">
+          <h4 class="section-title">基本信息</h4>
+          <div class="form-group">
+            <label class="form-label" for="rule-name">规则名称</label>
+            <input type="text" class="form-control" id="rule-name" placeholder="输入规则名称">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">应用国家/地区</label>
+            <div class="flex flex-wrap gap-2">
+              <label class="tag">
+                <input type="checkbox" name="regions" value="us"> 美国
+              </label>
+              <label class="tag">
+                <input type="checkbox" name="regions" value="ca"> 加拿大
+              </label>
+              <label class="tag">
+                <input type="checkbox" name="regions" value="eu"> 欧洲
+              </label>
+              <label class="tag">
+                <input type="checkbox" name="regions" value="uk"> 英国
+              </label>
+              <label class="tag">
+                <input type="checkbox" name="regions" value="au"> 澳大利亚
+              </label>
+              <label class="tag">
+                <input type="checkbox" name="regions" value="asia"> 亚洲
+              </label>
+              <label class="tag">
+                <input type="checkbox" name="regions" value="other"> 其他
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 轨迹处理规则容器 -->
+        <div class="rule-section">
+          <h4 class="section-title">轨迹处理规则</h4>
+          
+          <div class="card mb-4" style="background-color: #f8f9fa; padding: 1rem;">
+            <div class="form-group">
+              <label class="form-label">首条轨迹规则</label>
+              <div id="first-tracking-rules">
+                <div class="card mb-2">
+                  <div class="flex justify-between items-center mb-2">
+                    <strong>当首条轨迹包含：</strong>
+                    <button type="button" class="btn btn-danger btn-sm remove-rule">删除</button>
+                  </div>
+                  <input type="text" class="form-control mb-2" placeholder="输入要匹配的文字">
+                  <div class="form-group">
+                    <label class="form-label">处理方式：</label>
+                    <select class="form-control process-type mb-2">
+                      <option value="hide">隐藏轨迹</option>
+                      <option value="modify-part">修改部分内容</option>
+                      <option value="replace-all">替换全部内容</option>
+                    </select>
+                    
+                    <div class="modify-part-options" style="display: none;">
+                      <div class="flex gap-2 mb-2">
+                        <select class="form-control">
+                          <option value="location">地点</option>
+                          <option value="status">状态</option>
+                        </select>
+                        <input type="text" class="form-control" placeholder="替换为">
+                      </div>
+                    </div>
+                    
+                    <div class="replace-all-options" style="display: none;">
+                      <input type="text" class="form-control mb-2" placeholder="替换地点">
+                      <input type="text" class="form-control" placeholder="替换状态">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-outline btn-sm" id="add-first-rule">
+                <i class="fas fa-plus"></i> 添加首条轨迹规则
+              </button>
+            </div>
+            
+            <div class="form-group mt-4">
+              <label class="form-label">非首条轨迹规则</label>
+              <div id="non-first-tracking-rules">
+                <div class="card mb-2">
+                  <div class="flex justify-between items-center mb-2">
+                    <strong>当非首条轨迹包含：</strong>
+                    <button type="button" class="btn btn-danger btn-sm remove-rule">删除</button>
+                  </div>
+                  <input type="text" class="form-control mb-2" placeholder="输入要匹配的文字">
+                  <div class="form-group">
+                    <label class="form-label">处理方式：</label>
+                    <select class="form-control process-type mb-2">
+                      <option value="hide">隐藏轨迹</option>
+                      <option value="modify-part">修改部分内容</option>
+                      <option value="replace-all">替换全部内容</option>
+                    </select>
+                    
+                    <div class="modify-part-options" style="display: none;">
+                      <div class="flex gap-2 mb-2">
+                        <select class="form-control">
+                          <option value="location">地点</option>
+                          <option value="status">状态</option>
+                        </select>
+                        <input type="text" class="form-control" placeholder="替换为">
+                      </div>
+                    </div>
+                    
+                    <div class="replace-all-options" style="display: none;">
+                      <input type="text" class="form-control mb-2" placeholder="替换地点">
+                      <input type="text" class="form-control" placeholder="替换状态">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-outline btn-sm" id="add-non-first-rule">
+                <i class="fas fa-plus"></i> 添加非首条轨迹规则
+              </button>
+            </div>
+            
+            <div class="form-group mt-4">
+              <label class="form-label">全部轨迹规则</label>
+              <div id="all-tracking-rules">
+                <div class="card mb-2">
+                  <div class="flex justify-between items-center mb-2">
+                    <strong>当任意轨迹包含：</strong>
+                    <button type="button" class="btn btn-danger btn-sm remove-rule">删除</button>
+                  </div>
+                  <input type="text" class="form-control mb-2" placeholder="输入要匹配的文字">
+                  <div class="form-group">
+                    <label class="form-label">处理方式：</label>
+                    <select class="form-control process-type mb-2">
+                      <option value="hide">隐藏轨迹</option>
+                      <option value="modify-part">修改部分内容</option>
+                      <option value="replace-all">替换全部内容</option>
+                    </select>
+                    
+                    <div class="modify-part-options" style="display: none;">
+                      <div class="flex gap-2 mb-2">
+                        <select class="form-control">
+                          <option value="location">地点</option>
+                          <option value="status">状态</option>
+                        </select>
+                        <input type="text" class="form-control" placeholder="替换为">
+                      </div>
+                    </div>
+                    
+                    <div class="replace-all-options" style="display: none;">
+                      <input type="text" class="form-control mb-2" placeholder="替换地点">
+                      <input type="text" class="form-control" placeholder="替换状态">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-outline btn-sm" id="add-all-rule">
+                <i class="fas fa-plus"></i> 添加全部轨迹规则
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 物流公司信息 -->
+        <div class="rule-section">
+          <h4 class="section-title">物流公司信息</h4>
+          <div class="form-group">
+            <label class="form-label" for="company-rename">物流公司重命名</label>
+            <input type="text" class="form-control" id="company-rename" placeholder="例如：Yanwen → Global Express">
+          </div>
+        </div>
+
+        <!-- 自定义轨迹节点 -->
+        <div class="rule-section">
+          <h4 class="section-title">自定义轨迹节点</h4>
+          <p class="mb-2">拖拽可排序，最新的节点在顶部</p>
+          <ul class="draggable-list" id="tracking-nodes-container">
+            <li class="draggable-item">
+              <div class="w-100">
+                <div class="flex gap-2 mb-2">
+                  <input type="text" class="form-control" placeholder="节点时间" onfocus="(this.type='datetime-local')">
+                  <input type="text" class="form-control" placeholder="地点">
+                </div>
+                <input type="text" class="form-control" placeholder="状态文本">
+              </div>
+              <button type="button" class="btn btn-danger btn-sm remove-node">删除</button>
+            </li>
+            <li class="draggable-item">
+              <div class="w-100">
+                <div class="flex gap-2 mb-2">
+                  <input type="text" class="form-control" placeholder="节点时间" onfocus="(this.type='datetime-local')">
+                  <input type="text" class="form-control" placeholder="地点">
+                </div>
+                <input type="text" class="form-control" placeholder="状态文本">
+              </div>
+              <button type="button" class="btn btn-danger btn-sm remove-node">删除</button>
+            </li>
+          </ul>
+          <button type="button" class="btn btn-outline" id="add-tracking-node">
+            <i class="fas fa-plus"></i> 添加节点
+          </button>
+        </div>
+
+        <!-- 时间设置 -->
+        <div class="rule-section">
+          <h4 class="section-title">时间设置</h4>
+          <div class="form-group">
+            <label class="form-label" for="time-offset">时间偏移配置</label>
+            <div class="flex items-center gap-2">
+              <select class="form-control" id="time-offset-direction">
+                <option value="delay">延后</option>
+                <option value="advance">提前</option>
+              </select>
+              <input type="number" class="form-control" id="time-offset-days" min="0" max="30" value="2">
+              <span>天</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 按钮组 -->
+        <div class="flex justify-between mt-4">
+          <button type="button" class="btn btn-outline" id="preview-rule" data-modal-target="preview-modal">
+            <i class="fas fa-eye"></i> 预览规则
+          </button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> 保存规则
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 抽屉背景遮罩 -->
+  <div class="drawer-backdrop"></div>
+
+  <!-- 预览模态框 -->
+  <div class="modal" id="preview-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>规则预览</h3>
+        <button class="btn" data-modal-close>
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- 预览内容将通过JavaScript动态生成 -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" data-modal-close>关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript 文件 -->
+  <script src="js/main.js"></script>
+</body>
+</html> 

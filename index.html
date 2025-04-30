@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>虚拟物流单系统</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .tab-nav {
+      display: flex;
+      border-bottom: 2px solid var(--border-color);
+      margin-bottom: 1.5rem;
+      gap: 2rem;
+    }
+    .tab-nav-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.25rem;
+      font-weight: 600;
+      padding: 1rem 0;
+      margin-right: 2rem;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: color 0.2s, border-bottom 0.2s;
+    }
+    .tab-nav-btn.active {
+      color: var(--primary-color);
+      border-bottom: 3px solid var(--primary-color);
+    }
+    .status-tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      overflow-x: auto;
+    }
+    .status-tab {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-weight: 500;
+      padding: 0.75rem 1.25rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-bottom 0.2s;
+    }
+    .status-tab.active {
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--primary-color);
+    }
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      align-items: center;
+    }
+    .filter-bar .form-control, .filter-bar select {
+      min-width: 140px;
+      max-width: 180px;
+    }
+    .switch-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-right: 1.5rem;
+    }
+    .table-responsive {
+      overflow-x: auto;
+    }
+    .export-btns {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    /* 自定义Switch样式 */
+    .custom-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .custom-switch input { opacity: 0; width: 0; height: 0; }
+    .custom-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--input-bg); transition: .4s; border-radius: 34px; border: 1px solid var(--border-color); }
+    .custom-slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 2px; bottom: 2px; background-color: var(--text-secondary); transition: .4s; border-radius: 50%; }
+    .custom-switch input:checked + .custom-slider { background-color: var(--primary-color); }
+    .custom-switch input:checked + .custom-slider:before { transform: translateX(20px); background-color: #fff; }
+    .more-btn { background: none; border: none; color: var(--primary-color); font-size: 1.1rem; margin-left: 0.5rem; cursor: pointer; }
+    /* 弹窗样式 */
+    .modal-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 2000; display: flex; align-items: center; justify-content: center; }
+    .modal-config { background: var(--card-bg); border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); width: 420px; max-width: 95vw; max-height: 90vh; overflow-y: auto; padding: 2rem 1.5rem; }
+    .modal-config h3 { margin-bottom: 1rem; }
+    .modal-config .rule-row { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; align-items: center; }
+    .modal-config .rule-row input { flex: 1; margin-bottom: 0; }
+    .modal-config .remove-rule-btn { background: none; border: none; color: var(--danger-color); font-size: 1.1rem; cursor: pointer; }
+    .modal-config .add-rule-btn { margin: 0.5rem 0 1rem 0; }
+    .modal-config .modal-footer { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem; }
+    /* 表格内容不换行，保证一行展示 */
+    .data-table td, .data-table th {
+      white-space: nowrap;
+    }
+    /* 表格横向滚动优化 */
+    .table-responsive {
+      overflow-x: auto;
+      min-width: 100%;
+    }
+    /* 可点击的tracking-link样式 */
+    .tracking-link {
+      color: var(--primary-color);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .copy-btn {
+      color: var(--text-secondary);
+      margin-left: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    .copy-btn:hover {
+      color: var(--primary-color);
+    }
+    /* Analytics Tab 样式 */
+    .analytics-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      align-items: flex-end;
+      margin-bottom: 2rem;
+      background: var(--card-bg, #fff);
+      padding: 1.2rem 1.5rem 1rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .analytics-filters .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .analytics-filters label {
+      font-weight: 500;
+      margin-right: 0.3rem;
+    }
+    .analytics-filters select[multiple] {
+      min-width: 120px;
+      max-width: 180px;
+      height: 2.2em;
+      font-size: 1rem;
+    }
+    .analytics-filters .btn-primary {
+      margin-left: auto;
+      min-width: 120px;
+    }
+    .analytics-cards {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    .analytics-card {
+      background: var(--card-bg, #fff);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      padding: 1.5rem 2.5rem 1.2rem 2rem;
+      min-width: 220px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .analytics-card .card-title {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+    .analytics-card .card-value {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 0.3rem;
+    }
+    .analytics-card .unit {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      margin-left: 0.2rem;
+    }
+    .analytics-card .card-desc {
+      font-size: 0.98rem;
+      color: var(--text-secondary);
+    }
+    .analytics-chart {
+      background: var(--card-bg, #fff);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      padding: 1.5rem 2rem 2rem 2rem;
+      margin-bottom: 2rem;
+    }
+    .analytics-chart .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .analytics-chart select {
+      min-width: 100px;
+    }
+    .analytics-table {
+      background: var(--card-bg, #fff);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      padding: 1.5rem 2rem 2rem 2rem;
+      margin-bottom: 2rem;
+    }
+    .analytics-table .table-tools {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 0.5rem;
+    }
+    .analytics-table .btn-outline {
+      min-width: 100px;
+    }
+    .analytics-table .table-responsive {
+      overflow-x: auto;
+      min-width: 100%;
+    }
+    .analytics-table table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: transparent;
+    }
+    .analytics-table th, .analytics-table td {
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--border-color, #eee);
+      text-align: center;
+      white-space: nowrap;
+    }
+    .analytics-table th {
+      background: var(--table-header-bg, #f7f7f7);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      cursor: pointer;
+      user-select: none;
+    }
+    .analytics-table tr:hover {
+      background: #f5faff;
+    }
+    .analytics-table .table-pagination {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .analytics-table .pagination-btn {
+      border: none;
+      background: none;
+      color: var(--primary-color);
+      font-size: 1rem;
+      padding: 0.3rem 0.7rem;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .analytics-table .pagination-btn.active, .analytics-table .pagination-btn:hover {
+      background: var(--primary-color);
+      color: #fff;
+    }
+    .styled-filter-bar {
+      background: var(--card-bg, #fff);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      padding: 1.2rem 1.5rem 1rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .styled-filter-bar .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+    }
+    .styled-filter-bar .form-control {
+      min-width: 140px;
+      max-width: 180px;
+      font-size: 1rem;
+      padding: 0.4rem 0.7rem;
+      border-radius: 5px;
+      border: 1px solid var(--border-color, #e0e0e0);
+      background: #fff;
+    }
+    .styled-filter-bar select[multiple] {
+      height: 2.2em;
+    }
+    .styled-filter-bar .btn-primary {
+      min-width: 120px;
+    }
+    .analytics-cards-wide {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2rem;
+      width: 100%;
+      max-width: 100%;
+    }
+    .analytics-cards-wide .analytics-card {
+      flex: 1 1 0;
+      min-width: 0;
+      box-sizing: border-box;
+      margin: 0;
+    }
+    .chart-granularity-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .granularity-btn {
+      border: 1px solid var(--primary-color);
+      background: #fff;
+      color: var(--primary-color);
+      font-weight: 500;
+      border-radius: 5px;
+      padding: 0.3rem 1.2rem;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .granularity-btn.active, .granularity-btn:hover {
+      background: var(--primary-color);
+      color: #fff;
+    }
+    /* Tracking Lookup 样式 */
+    .tracking-lookup-container {
+      max-width: 540px;
+      margin: 2.5rem auto 0 auto;
+      background: var(--card-bg, #fff);
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      padding: 2.5rem 2rem 2rem 2rem;
+    }
+    #tracking-lookup-form {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    #tracking-lookup-form .form-control {
+      flex: 1;
+      min-width: 0;
+    }
+    .tracking-progress-section {
+      margin-bottom: 2rem;
+    }
+    .tracking-progress-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.2rem;
+      position: relative;
+      padding: 0 0.5rem;
+    }
+    .progress-step {
+      position: relative;
+      z-index: 1;
+      background: #fff;
+      border: 2px solid var(--primary-color);
+      color: var(--primary-color);
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1rem;
+      margin: 0 0.5rem;
+      transition: background 0.2s, color 0.2s;
+    }
+    .progress-step.completed {
+      background: var(--primary-color);
+      color: #fff;
+    }
+    .tracking-progress-bar::before {
+      content: '';
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      top: 50%;
+      height: 4px;
+      background: var(--primary-color);
+      z-index: 0;
+      transform: translateY(-50%);
+    }
+    .tracking-history-section {
+      margin-bottom: 1.5rem;
+    }
+    .tracking-history-section h4 {
+      margin-bottom: 0.7rem;
+      font-size: 1.1rem;
+      color: var(--primary-color);
+    }
+    .tracking-history-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .tracking-history-list li {
+      display: flex;
+      gap: 1.2rem;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 1rem;
+    }
+    .history-time {
+      color: var(--text-secondary);
+      min-width: 120px;
+      font-size: 0.98rem;
+    }
+    .history-status {
+      font-weight: 600;
+      color: var(--primary-color);
+      min-width: 110px;
+    }
+    .history-location {
+      color: #666;
+      font-size: 0.98rem;
+    }
+    /* Re-sync按钮动画效果 */
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .icon-spin {
+      animation: spin 1s linear infinite;
+      display: inline-block;
+    }
+    /* 成功提示样式 */
+    .success-toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px 24px;
+      background-color: #4CAF50;
+      color: white;
+      border-radius: 4px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      z-index: 9999;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .success-toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .success-toast i {
+      margin-right: 8px;
+    }
+    /* 表头排序样式 */
+    .data-table th.sortable {
+      cursor: pointer;
+      position: relative;
+      padding-right: 20px;
+    }
+    .data-table th.sortable:after {
+      content: '⇅';
+      opacity: 0.5;
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+    }
+    .data-table th.sorting-asc:after {
+      content: '↑';
+      opacity: 1;
+    }
+    .data-table th.sorting-desc:after {
+      content: '↓';
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <!-- 侧边栏 -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <img src="img/logo.png" alt="虚拟物流单">
+    </div>
+    <ul class="sidebar-menu">
+      <li class="sidebar-menu-item">
+        <a href="index.html" class="sidebar-menu-link active">
+          <i class="fas fa-home sidebar-menu-icon"></i>
+          <span>首页</span>
+        </a>
+      </li>
+      <!--
+      <li class="sidebar-menu-item">
+        <a href="rule-config.html" class="sidebar-menu-link">
+          <i class="fas fa-cog sidebar-menu-icon"></i>
+          <span>规则配置</span>
+        </a>
+      </li>
+      <li class="sidebar-menu-item">
+        <a href="tracking-management.html" class="sidebar-menu-link">
+          <i class="fas fa-shipping-fast sidebar-menu-icon"></i>
+          <span>物流管理</span>
+        </a>
+      </li>
+      -->
+      <li class="sidebar-menu-item">
+        <a href="tracking-lookup.html" class="sidebar-menu-link">
+          <i class="fas fa-search sidebar-menu-icon"></i>
+          <span>物流查询</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- 主内容区域 -->
+  <div class="main-content">
+    <div class="page-header">
+      <h1>虚拟物流单系统</h1>
+    </div>
+
+    <!-- Tab导航 -->
+    <div class="tab-nav" id="main-tabs">
+      <button class="tab-nav-btn active" data-tab="orders">Orders AI Tracking</button>
+      <button class="tab-nav-btn" data-tab="analytics">Analytics</button>
+    </div>
+
+    <!-- Tab内容区 -->
+    <div id="tab-orders" class="tab-content">
+      <!-- 顶部功能区 -->
+      <div class="flex justify-between items-center mb-4">
+        <div class="flex items-center">
+          <button class="btn btn-outline" id="rule-setting-btn" style="margin-left:0.5rem;"><i class="fas fa-sliders-h"></i> Rule Setting</button>
+        </div>
+        <div class="export-btns">
+          <button class="btn btn-outline" id="export-btn"><i class="fas fa-download"></i> Export</button>
+          <button class="btn btn-outline" id="resync-btn"><i class="fas fa-sync"></i> Re-sync</button>
+        </div>
+      </div>
+
+      <!-- 订单状态Tab -->
+      <div class="status-tabs" id="order-status-tabs">
+        <button class="status-tab active" data-status="all">All (2,505)</button>
+        <button class="status-tab" data-status="pending">Pending (98)</button>
+        <button class="status-tab" data-status="info">Info received (48)</button>
+        <button class="status-tab" data-status="intransit">In transit (901)</button>
+        <button class="status-tab" data-status="out">Out for delivery (107)</button>
+        <button class="status-tab" data-status="delivered">Delivered (1,201)</button>
+        <button class="status-tab" data-status="exception">Exception (34)</button>
+        <button class="status-tab" data-status="failed">Failed attempt (25)</button>
+        <button class="status-tab" data-status="expired">Expired (95)</button>
+      </div>
+
+      <!-- 筛选区 -->
+      <div class="filter-bar">
+        <input type="date" class="form-control" placeholder="Order Date From">
+        <input type="date" class="form-control" placeholder="Order Date To">
+        <select class="form-control">
+          <option value="">Status</option>
+          <option>In Transit</option>
+          <option>Delivered</option>
+          <option>Exception</option>
+          <option>Out for Delivery</option>
+          <option>Info Received</option>
+          <option>Failed Attempt</option>
+          <option>Expired</option>
+        </select>
+        <select class="form-control">
+          <option value="">Carrier</option>
+          <option>Yanwen</option>
+          <option>Global Express</option>
+        </select>
+        <select class="form-control">
+          <option value="">Destination</option>
+          <option>United States</option>
+          <option>Canada</option>
+          <option>United Kingdom</option>
+          <option>Australia</option>
+          <option>Mexico</option>
+        </select>
+        <select class="form-control">
+          <option value="">Order Tag</option>
+          <option>AfterSell Upsell</option>
+          <option>UpCart Addon</option>
+          <option>AfterSell TY Page</option>
+          <option>AfterSell TY Original</option>
+          <option>UpCart Upsell</option>
+        </select>
+        <button class="btn btn-outline" id="customize-fields-btn" type="button"><i class="fas fa-sliders-h"></i> Customize</button>
+        <select class="form-control">
+          <option value="">Sort By</option>
+          <option>Sort by: Order Date</option>
+          <option>Sort by: Fulfillment Date</option>
+          <option>Sort by: Transit Time</option>
+          <option>Sort by: Residence Time</option>
+          <option>Sort by: Last Checkpoint Time</option>
+        </select>
+      </div>
+
+      <!-- 列表表格 -->
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>BEST ID</th>
+              <th>Order</th>
+              <th>Tracking Number</th>
+              <th>Virtual Tracking Number</th>
+              <th>Carrier</th>
+              <th>Last Checkpoint</th>
+              <th class="sortable" data-sort="transit-time">Transit Time</th>
+              <th class="sortable sorting-desc" data-sort="order-date">Order Date</th>
+              <th>Status</th>
+              <th class="sortable" data-sort="fulfillment-date">Fulfillment Date</th>
+              <th>Destination</th>
+              <th>Customer</th>
+              <th>Order Tag</th>
+              <th class="sortable" data-sort="checkpoint-time">Last Checkpoint Time</th>
+              <th class="sortable" data-sort="residence-time">Residence Time</th>
+              <th>Last-mile Tracking</th>
+              <th>Last-mile Carrier</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><a href="#" class="order-detail-link" data-row="0">BEST-10001</a></td>
+              <td><a href="#" class="order-detail-link" data-row="0">ORD-10234</a></td>
+              <td><a href="tracking-lookup.html?number=YT1234567890" class="tracking-link" target="_blank">YT1234567890</a> <i class="fas fa-copy copy-btn" data-text="YT1234567890" title="Copy number"></i></td>
+              <td><a href="tracking-lookup.html?number=ABC1234567890" class="tracking-link" target="_blank">ABC1234567890</a> <i class="fas fa-copy copy-btn" data-text="ABC1234567890" title="Copy number"></i></td>
+              <td>Yanwen</td>
+              <td>New York, USA</td>
+              <td>4d</td>
+              <td>2023-12-28</td>
+              <td><span class="status-badge in-transit">In Transit</span></td>
+              <td>2023-12-29</td>
+              <td>United States</td>
+              <td>John Smith</td>
+              <td>AfterSell Upsell</td>
+              <td>2023-12-29 14:30</td>
+              <td>1d</td>
+              <td>GE7890123456</td>
+              <td>Global Express</td>
+            </tr>
+            <tr>
+              <td><a href="#" class="order-detail-link" data-row="1">BEST-10002</a></td>
+              <td><a href="#" class="order-detail-link" data-row="1">ORD-10235</a></td>
+              <td><a href="tracking-lookup.html?number=YT2345678901" class="tracking-link" target="_blank">YT2345678901</a> <i class="fas fa-copy copy-btn" data-text="YT2345678901" title="Copy number"></i></td>
+              <td><a href="tracking-lookup.html?number=ABC2345678901" class="tracking-link" target="_blank">ABC2345678901</a> <i class="fas fa-copy copy-btn" data-text="ABC2345678901" title="Copy number"></i></td>
+              <td>Yanwen</td>
+              <td>Toronto, Canada</td>
+              <td>6d</td>
+              <td>2023-12-26</td>
+              <td><span class="status-badge out-for-delivery">Out for Delivery</span></td>
+              <td>2023-12-27</td>
+              <td>Canada</td>
+              <td>Emma Wilson</td>
+              <td>UpCart Addon</td>
+              <td>2023-12-27 11:20</td>
+              <td>2d</td>
+              <td>GE8901234567</td>
+              <td>Global Express</td>
+            </tr>
+            <tr>
+              <td><a href="#" class="order-detail-link" data-row="2">BEST-10003</a></td>
+              <td><a href="#" class="order-detail-link" data-row="2">ORD-10236</a></td>
+              <td><a href="tracking-lookup.html?number=YT3456789012" class="tracking-link" target="_blank">YT3456789012</a> <i class="fas fa-copy copy-btn" data-text="YT3456789012" title="Copy number"></i></td>
+              <td><a href="tracking-lookup.html?number=ABC3456789012" class="tracking-link" target="_blank">ABC3456789012</a> <i class="fas fa-copy copy-btn" data-text="ABC3456789012" title="Copy number"></i></td>
+              <td>Yanwen</td>
+              <td>London, UK</td>
+              <td>5d</td>
+              <td>2023-12-25</td>
+              <td><span class="status-badge delivered">Delivered</span></td>
+              <td>2023-12-27</td>
+              <td>United Kingdom</td>
+              <td>Sophie Turner</td>
+              <td>AfterSell TY Page</td>
+              <td>2023-12-27 09:30</td>
+              <td>0d</td>
+              <td>GE9012345678</td>
+              <td>Global Express</td>
+            </tr>
+            <tr>
+              <td><a href="#" class="order-detail-link" data-row="3">BEST-10004</a></td>
+              <td><a href="#" class="order-detail-link" data-row="3">ORD-10237</a></td>
+              <td><a href="tracking-lookup.html?number=YT4567890123" class="tracking-link" target="_blank">YT4567890123</a> <i class="fas fa-copy copy-btn" data-text="YT4567890123" title="Copy number"></i></td>
+              <td><a href="tracking-lookup.html?number=ABC4567890123" class="tracking-link" target="_blank">ABC4567890123</a> <i class="fas fa-copy copy-btn" data-text="ABC4567890123" title="Copy number"></i></td>
+              <td>Yanwen</td>
+              <td>Sydney, Australia</td>
+              <td>7d</td>
+              <td>2023-12-25</td>
+              <td><span class="status-badge exception">Exception</span></td>
+              <td>2023-12-26</td>
+              <td>Australia</td>
+              <td>James Cooper</td>
+              <td>AfterSell TY Original</td>
+              <td>2023-12-26 03:45</td>
+              <td>3d</td>
+              <td>GE0123456789</td>
+              <td>Global Express</td>
+            </tr>
+            <tr>
+              <td><a href="#" class="order-detail-link" data-row="4">BEST-10005</a></td>
+              <td><a href="#" class="order-detail-link" data-row="4">ORD-10238</a></td>
+              <td><a href="tracking-lookup.html?number=YT5678901234" class="tracking-link" target="_blank">YT5678901234</a> <i class="fas fa-copy copy-btn" data-text="YT5678901234" title="Copy number"></i></td>
+              <td><a href="tracking-lookup.html?number=ABC5678901234" class="tracking-link" target="_blank">ABC5678901234</a> <i class="fas fa-copy copy-btn" data-text="ABC5678901234" title="Copy number"></i></td>
+              <td>Yanwen</td>
+              <td>Mexico City, Mexico</td>
+              <td>1d</td>
+              <td>2023-12-31</td>
+              <td><span class="status-badge info-received">Info Received</span></td>
+              <td>2024-01-01</td>
+              <td>Mexico</td>
+              <td>Maria Garcia</td>
+              <td>UpCart Upsell</td>
+              <td>2024-01-01 10:30</td>
+              <td>0d</td>
+              <td>GE2345678901</td>
+              <td>Global Express</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Analytics Tab内容区 -->
+    <div id="tab-analytics" class="tab-content" style="display:none;">
+      <!-- 1. 过滤器区域 -->
+      <div class="analytics-filters styled-filter-bar">
+        <div class="filter-bar">
+          <input type="date" class="form-control" id="analytics-date-from" placeholder="Start date">
+          <span style="margin:0 0.5rem;">-</span>
+          <input type="date" class="form-control" id="analytics-date-to" placeholder="End date">
+          <select class="form-control" id="analytics-provider-select" multiple style="min-width:140px;">
+            <option selected>Yanwen</option>
+            <option>Global Express</option>
+            <option>SF Express</option>
+            <option>DHL</option>
+          </select>
+          <select class="form-control" id="analytics-country-select" multiple style="min-width:140px;">
+            <option selected>United States</option>
+            <option>Canada</option>
+            <option>United Kingdom</option>
+            <option>Australia</option>
+            <option>Mexico</option>
+          </select>
+          <button class="btn btn-primary" id="analytics-export-btn" type="button"><i class="fas fa-download"></i> Export Data</button>
+        </div>
+      </div>
+      <!-- 2. 数据卡片 -->
+      <div class="analytics-cards analytics-cards-wide">
+        <div class="analytics-card">
+          <div class="card-title">P85 transit time</div>
+          <div class="card-value">4.2 <span class="unit">d</span></div>
+          <div class="card-desc">85% of orders delivered within this time</div>
+        </div>
+        <div class="analytics-card">
+          <div class="card-title">Average transit time</div>
+          <div class="card-value">5.1 <span class="unit">d</span></div>
+          <div class="card-desc">Average delivery transit time</div>
+        </div>
+      </div>
+      <!-- 3. 条形图模块 -->
+      <div class="analytics-chart">
+        <div class="chart-header">
+          <span>Transit Time Over Time</span>
+          <div class="chart-granularity-group" id="analytics-chart-granularity-group">
+            <button type="button" class="granularity-btn active" data-granularity="day">Day</button>
+            <button type="button" class="granularity-btn" data-granularity="week">Week</button>
+            <button type="button" class="granularity-btn" data-granularity="month">Month</button>
+          </div>
+        </div>
+        <canvas id="transit-time-chart" height="120"></canvas>
+      </div>
+      <!-- 4. 数据表格模块 -->
+      <div class="analytics-table">
+        <div class="table-tools">
+          <button class="btn btn-outline" id="analytics-table-export-btn">Export Table</button>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table" id="analytics-data-table">
+            <thead>
+              <tr>
+                <th rowspan="2" data-sort="string">Logistics Provider</th>
+                <th rowspan="2" data-sort="string">Destination</th>
+                <th rowspan="2" data-sort="number">Delivered</th>
+                <th colspan="4">Transit Time (days)</th>
+                <th colspan="5">Transit Time Distribution (%)</th>
+              </tr>
+              <tr>
+                <th data-sort="number">P85</th>
+                <th data-sort="number">Avg.</th>
+                <th data-sort="number">Min</th>
+                <th data-sort="number">Max</th>
+                <th data-sort="number">1–3d</th>
+                <th data-sort="number">4–7d</th>
+                <th data-sort="number">8–15d</th>
+                <th data-sort="number">16–30d</th>
+                <th data-sort="number">31d+</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Yanwen</td><td>United States</td><td>1200</td><td>4.0</td><td>5.0</td><td>2</td><td>12</td><td>10%</td><td>40%</td><td>35%</td><td>10%</td><td>5%</td>
+              </tr>
+              <tr>
+                <td>Yanwen</td><td>Canada</td><td>300</td><td>5.0</td><td>6.2</td><td>3</td><td>15</td><td>8%</td><td>38%</td><td>40%</td><td>10%</td><td>4%</td>
+              </tr>
+              <tr>
+                <td>Global Express</td><td>United States</td><td>900</td><td>3.8</td><td>4.5</td><td>2</td><td>10</td><td>15%</td><td>50%</td><td>25%</td><td>7%</td><td>3%</td>
+              </tr>
+              <tr>
+                <td>SF Express</td><td>United Kingdom</td><td>200</td><td>6.0</td><td>7.2</td><td>4</td><td>18</td><td>5%</td><td>30%</td><td>50%</td><td>10%</td><td>5%</td>
+              </tr>
+              <tr>
+                <td>DHL</td><td>Australia</td><td>150</td><td>2.5</td><td>3.1</td><td>1</td><td>7</td><td>20%</td><td>60%</td><td>15%</td><td>4%</td><td>1%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-pagination" id="analytics-table-pagination"></div>
+      </div>
+    </div>
+
+    <!-- Tracking Lookup Tab内容区 -->
+    <div id="tab-tracking-lookup" class="tab-content" style="display:none;">
+      <div class="tracking-lookup-container">
+        <div id="tracking-lookup-form">
+          <input type="text" id="tracking-number-input" class="form-control" placeholder="Enter Tracking Number">
+          <button class="btn btn-primary" id="tracking-lookup-search">Search</button>
+          <button class="btn btn-outline" id="tracking-lookup-reset" style="display:none;">Reset</button>
+        </div>
+        <div id="tracking-lookup-result" style="display:none;">
+          <div class="tracking-progress-section" id="tracking-progress-section">
+            <div class="tracking-progress-bar">
+              <div class="progress-step completed">Ordered</div>
+              <div class="progress-step completed">Order Ready</div>
+              <div class="progress-step completed">In Transit</div>
+              <div class="progress-step completed">Out for Delivery</div>
+              <div class="progress-step completed">Delivered</div>
+            </div>
+          </div>
+          <div class="tracking-history-section" id="tracking-history-section">
+            <h4>Tracking History</h4>
+            <ul class="tracking-history-list">
+              <li><span class="history-time">2024-05-07 10:30</span> <span class="history-status">Delivered</span> <span class="history-location">New York, USA</span></li>
+              <li><span class="history-time">2024-05-07 08:00</span> <span class="history-status">Out for Delivery</span> <span class="history-location">New York, USA</span></li>
+              <li><span class="history-time">2024-05-05 14:20</span> <span class="history-status">In Transit</span> <span class="history-location">Chicago, USA</span></li>
+              <li><span class="history-time">2024-05-03 09:10</span> <span class="history-status">Order Ready</span> <span class="history-location">Shanghai, China</span></li>
+              <li><span class="history-time">2024-05-01 12:00</span> <span class="history-status">Ordered</span> <span class="history-location">Shanghai, China</span></li>
+            </ul>
+          </div>
+          <button class="btn btn-outline" id="tracking-lookup-screenshot" style="margin-top:1.5rem;">Screenshot Progress & History</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rule Setting 弹窗 -->
+  <div id="modal-rule-setting" class="modal-backdrop" style="display:none;">
+    <div class="modal-config" style="width: 1200px; max-width:98vw;">
+      <div class="flex justify-between items-center mb-3">
+        <h3>Rule Setting</h3>
+        <button class="btn btn-outline" id="close-rule-setting"><i class="fas fa-times"></i></button>
+      </div>
+      
+      <!-- Auto Hide China Addresses -->
+      <div style="margin-bottom:1.5rem;">
+        <div class="flex items-center mb-2" style="gap:1.5rem;">
+          <span class="custom-switch"><input type="checkbox" id="auto-hide-china-modal"><span class="custom-slider"></span></span>
+          <span style="font-weight:500;font-size:1.1rem;">Auto Hide China Addresses</span>
+        </div>
+        <div style="color:var(--text-secondary);font-size:1rem;line-height:1.8;margin-left:3.2rem;">Automatically hide all address information related to China in the tracking details for privacy and compliance.</div>
+      </div>
+
+      <!-- 分隔线 -->
+      <div style="height:1px;background:var(--border-color);margin:1.5rem 0;"></div>
+
+      <!-- Dropshipping Mode 和规则设置区域 -->
+      <div>
+        <!-- Dropshipping Mode -->
+        <div style="margin-bottom:2rem;">
+          <div class="flex items-center mb-2" style="gap:1.5rem;">
+            <span class="custom-switch"><input type="checkbox" id="dropshipping-mode-modal"><span class="custom-slider"></span></span>
+            <span style="font-weight:500;font-size:1.1rem;">Dropshipping Mode</span>
+          </div>
+          <div style="color:var(--text-secondary);font-size:1rem;line-height:1.8;margin-left:3.2rem;">When enabled, tracking information and order details will be optimized for dropshipping business scenarios. You can set up text conversion rules below.</div>
+        </div>
+
+        <!-- 规则设置区域 -->
+        <div>
+          <div class="flex items-center mb-3" style="gap:1rem;">
+            <span style="font-weight:500;font-size:1.1rem;">Text Conversion Rules</span>
+            <span id="rule-edit-tip" style="color:var(--text-secondary);font-size:1rem;">(Editable only when Dropshipping Mode is enabled)</span>
+          </div>
+          <div id="conversion-rules-list" style="margin-bottom:1.5rem;">
+            <!-- 动态规则项 -->
+          </div>
+          <button class="btn btn-outline add-rule-btn" id="add-conversion-rule" style="margin-top:0.5rem;">Add Rule</button>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="margin-top:2rem;">
+        <button class="btn btn-outline" id="cancel-rule-setting">Cancel</button>
+        <button class="btn btn-primary" id="save-rule-setting">Save & Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 订单详情弹窗 -->
+  <div id="modal-order-detail" class="modal-backdrop" style="display:none;">
+    <div class="modal-config" style="width: 480px;">
+      <div class="flex justify-between items-center mb-2">
+        <h3>Order Details</h3>
+        <button class="btn btn-outline" id="close-order-detail"><i class="fas fa-times"></i></button>
+      </div>
+      <div id="order-detail-content"></div>
+    </div>
+  </div>
+
+  <!-- Customize Fields 弹窗 -->
+  <div id="modal-customize-fields" class="modal-backdrop" style="display:none;">
+    <div class="modal-config" style="width: 520px;max-width:95vw;">
+      <div class="flex justify-between items-center mb-3">
+        <h3>Customize Table Fields</h3>
+        <button class="btn btn-outline" id="close-customize-fields"><i class="fas fa-times"></i></button>
+      </div>
+      <div id="customize-fields-list" style="margin-bottom:2rem;">
+        <!-- 动态字段项 -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="cancel-customize-fields">Cancel</button>
+        <button class="btn btn-primary" id="save-customize-fields">Save & Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <!-- Chart.js CDN for Analytics Tab -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- html2canvas CDN for screenshot -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script>
+    // Tab切换逻辑
+    document.querySelectorAll('.tab-nav-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-nav-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const tab = this.getAttribute('data-tab');
+        document.querySelectorAll('.tab-content').forEach(tc => tc.style.display = 'none');
+        document.getElementById('tab-' + tab).style.display = '';
+      });
+    });
+    // 状态Tab切换（仅UI高亮，数据切换可后续实现）
+    document.querySelectorAll('.status-tab').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.status-tab').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // Rule Setting 弹窗逻辑
+    const ruleSettingModal = document.getElementById('modal-rule-setting');
+    const ruleSettingBtn = document.getElementById('rule-setting-btn');
+    const closeRuleSettingBtn = document.getElementById('close-rule-setting');
+    const cancelRuleSettingBtn = document.getElementById('cancel-rule-setting');
+    const saveRuleSettingBtn = document.getElementById('save-rule-setting');
+    const autoHideChinaModal = document.getElementById('auto-hide-china-modal');
+    const dropshippingModeModal = document.getElementById('dropshipping-mode-modal');
+    const conversionRulesList = document.getElementById('conversion-rules-list');
+    const addConversionRuleBtn = document.getElementById('add-conversion-rule');
+    const ruleEditTip = document.getElementById('rule-edit-tip');
+    let conversionRules = [];
+    // 保证自定义Switch点击滑块和标签都能切换checkbox
+    document.querySelectorAll('.custom-switch').forEach(sw => {
+      sw.addEventListener('click', function(e) {
+        if (e.target.tagName !== 'INPUT') {
+          const input = this.querySelector('input[type="checkbox"]');
+          input.checked = !input.checked;
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+    });
+    function renderConversionRules(disabled) {
+      conversionRulesList.innerHTML = '';
+      if (conversionRules.length === 0) conversionRules.push({ from: '', to: '' });
+      conversionRules.forEach((rule, idx) => {
+        const row = document.createElement('div');
+        row.className = 'rule-row';
+        row.style.marginBottom = '0.75rem';
+        row.innerHTML = `
+          <input type="text" placeholder="From Text" value="${rule.from}" class="form-control rule-from" style="max-width:140px;" ${disabled ? 'disabled' : ''}>
+          <span style="color:var(--text-secondary);">→</span>
+          <input type="text" placeholder="To Text" value="${rule.to}" class="form-control rule-to" style="max-width:180px;" ${disabled ? 'disabled' : ''}>
+          <button class="remove-rule-btn" title="Delete Rule" ${disabled ? 'disabled' : ''}><i class="fas fa-trash"></i></button>
+        `;
+        row.querySelector('.remove-rule-btn').onclick = () => {
+          if (!disabled) {
+            conversionRules.splice(idx, 1);
+            renderConversionRules(disabled);
+          }
+        };
+        row.querySelector('.rule-from').oninput = e => conversionRules[idx].from = e.target.value;
+        row.querySelector('.rule-to').oninput = e => conversionRules[idx].to = e.target.value;
+        conversionRulesList.appendChild(row);
+      });
+    }
+    function updateConversionRuleEditState() {
+      const disabled = !dropshippingModeModal.checked;
+      addConversionRuleBtn.disabled = disabled;
+      ruleEditTip.style.color = disabled ? 'var(--danger-color)' : 'var(--text-secondary)';
+      renderConversionRules(disabled);
+    }
+    ruleSettingBtn.onclick = () => {
+      ruleSettingModal.style.display = 'flex';
+      updateConversionRuleEditState();
+    };
+    closeRuleSettingBtn.onclick = cancelRuleSettingBtn.onclick = () => {
+      ruleSettingModal.style.display = 'none';
+    };
+    addConversionRuleBtn.onclick = () => {
+      if (!addConversionRuleBtn.disabled) {
+        conversionRules.push({ from: '', to: '' });
+        renderConversionRules(false);
+      }
+    };
+    dropshippingModeModal.onchange = updateConversionRuleEditState;
+    saveRuleSettingBtn.onclick = () => {
+      // 可在此处保存autoHideChinaModal.checked, dropshippingModeModal.checked, conversionRules
+      ruleSettingModal.style.display = 'none';
+    };
+    ruleSettingModal.onclick = e => { if (e.target === ruleSettingModal) ruleSettingModal.style.display = 'none'; };
+
+    // 订单详情弹窗数据
+    const orderDetailData = [
+      {
+        orderId: 'ORD-10234', bestId: 'BEST-10001', customer: 'John Smith', orderTag: 'AfterSell Upsell', orderDate: '2023-12-28', fulfillmentDate: '2023-12-29',
+        trackingNumber: 'YT1234567890', carrier: 'Yanwen', lastCheck: 'New York, USA', lastCheckpointTime: '2023-12-29 14:30', transitTime: '4d', residenceTime: '1d',
+        destination: 'United States', lastMileTracking: 'GE7890123456', lastMileCarrier: 'Global Express'
+      },
+      {
+        orderId: 'ORD-10235', bestId: 'BEST-10002', customer: 'Emma Wilson', orderTag: 'UpCart Addon', orderDate: '2023-12-26', fulfillmentDate: '2023-12-27',
+        trackingNumber: 'YT2345678901', carrier: 'Yanwen', lastCheck: 'Toronto, Canada', lastCheckpointTime: '2023-12-27 11:20', transitTime: '6d', residenceTime: '2d',
+        destination: 'Canada', lastMileTracking: 'GE8901234567', lastMileCarrier: 'Global Express'
+      },
+      {
+        orderId: 'ORD-10236', bestId: 'BEST-10003', customer: 'Sophie Turner', orderTag: 'AfterSell TY Page', orderDate: '2023-12-25', fulfillmentDate: '2023-12-27',
+        trackingNumber: 'YT3456789012', carrier: 'Yanwen', lastCheck: 'London, UK', lastCheckpointTime: '2023-12-27 09:30', transitTime: '5d', residenceTime: '0d',
+        destination: 'United Kingdom', lastMileTracking: 'GE9012345678', lastMileCarrier: 'Global Express'
+      },
+      {
+        orderId: 'ORD-10237', bestId: 'BEST-10004', customer: 'James Cooper', orderTag: 'AfterSell TY Original', orderDate: '2023-12-25', fulfillmentDate: '2023-12-26',
+        trackingNumber: 'YT4567890123', carrier: 'Yanwen', lastCheck: 'Sydney, Australia', lastCheckpointTime: '2023-12-26 03:45', transitTime: '7d', residenceTime: '3d',
+        destination: 'Australia', lastMileTracking: 'GE0123456789', lastMileCarrier: 'Global Express'
+      },
+      {
+        orderId: 'ORD-10238', bestId: 'BEST-10005', customer: 'Maria Garcia', orderTag: 'UpCart Upsell', orderDate: '2023-12-31', fulfillmentDate: '2024-01-01',
+        trackingNumber: 'YT5678901234', carrier: 'Yanwen', lastCheck: 'Mexico City, Mexico', lastCheckpointTime: '2024-01-01 10:30', transitTime: '1d', residenceTime: '0d',
+        destination: 'Mexico', lastMileTracking: 'GE2345678901', lastMileCarrier: 'Global Express'
+      }
+    ];
+    // 订单详情弹窗逻辑
+    document.querySelectorAll('.order-detail-link').forEach(link => {
+      link.onclick = function(e) {
+        e.preventDefault();
+        const idx = parseInt(this.getAttribute('data-row'));
+        const d = orderDetailData[idx];
+        const html = `
+          <div class="mb-4">
+            <h4 style="color:var(--primary-color);margin-bottom:0.5rem;">Orders information</h4>
+            <div style="display:grid;grid-template-columns:120px 1fr;gap:0.5rem 1rem;">
+              <div>Order ID</div><div>${d.orderId}</div>
+              <div>Customer</div><div>${d.customer}</div>
+              <div>Order Tag</div><div>${d.orderTag}</div>
+              <div>Order Date</div><div>${d.orderDate}</div>
+              <div>Fulfillment Date</div><div>${d.fulfillmentDate}</div>
+            </div>
+          </div>
+          <div class="mb-4">
+            <h4 style="color:var(--primary-color);margin-bottom:0.5rem;">Tracking Details</h4>
+            <div style="display:grid;grid-template-columns:120px 1fr;gap:0.5rem 1rem;">
+              <div>Tracking Number</div><div>${d.trackingNumber}</div>
+              <div>Carrier</div><div>${d.carrier}</div>
+              <div>Last Check</div><div>${d.lastCheck}</div>
+              <div>Last Checkpoint Time</div><div>${d.lastCheckpointTime}</div>
+              <div>Transit Time</div><div>${d.transitTime}</div>
+              <div>Residence Time</div><div>${d.residenceTime}</div>
+            </div>
+          </div>
+          <div class="mb-2">
+            <h4 style="color:var(--primary-color);margin-bottom:0.5rem;">Shipping Details</h4>
+            <div style="display:grid;grid-template-columns:120px 1fr;gap:0.5rem 1rem;">
+              <div>Destination</div><div>${d.destination}</div>
+              <div>Last-Mile Tracking</div><div>${d.lastMileTracking}</div>
+              <div>Last-Mile Carrier</div><div>${d.lastMileCarrier}</div>
+            </div>
+          </div>
+        `;
+        document.getElementById('order-detail-content').innerHTML = html;
+        document.getElementById('modal-order-detail').style.display = 'flex';
+      };
+    });
+    document.getElementById('close-order-detail').onclick = function() {
+      document.getElementById('modal-order-detail').style.display = 'none';
+    };
+    document.getElementById('modal-order-detail').onclick = function(e) {
+      if (e.target === this) this.style.display = 'none';
+    };
+
+    // Customize Fields 弹窗逻辑
+    const customizeFieldsBtn = document.getElementById('customize-fields-btn');
+    const customizeFieldsModal = document.getElementById('modal-customize-fields');
+    const closeCustomizeFieldsBtn = document.getElementById('close-customize-fields');
+    const cancelCustomizeFieldsBtn = document.getElementById('cancel-customize-fields');
+    const saveCustomizeFieldsBtn = document.getElementById('save-customize-fields');
+    const customizeFieldsList = document.getElementById('customize-fields-list');
+    // 字段列表及初始顺序
+    let tableFields = [
+      { key: 'bestId', label: 'BEST ID', show: true },
+      { key: 'order', label: 'Order', show: true },
+      { key: 'trackingNumber', label: 'Tracking number', show: true },
+      { key: 'carrier', label: 'Carrier', show: true },
+      { key: 'lastCheckpoint', label: 'Last checkpoint', show: true },
+      { key: 'transitTime', label: 'Transit time', show: true },
+      { key: 'orderDate', label: 'Order date', show: true },
+      { key: 'status', label: 'Status', show: true },
+      { key: 'fulfillmentDate', label: 'Fulfillment date', show: true },
+      { key: 'destination', label: 'Destination', show: true },
+      { key: 'customer', label: 'Customer', show: true },
+      { key: 'orderTag', label: 'Order tag', show: true },
+      { key: 'lastCheckpointTime', label: 'Last checkpoint time', show: true },
+      { key: 'residenceTime', label: 'Residence time', show: true },
+      { key: 'lastMileTracking', label: 'Last-mile tracking', show: true },
+      { key: 'lastMileCarrier', label: 'Last-mile carrier', show: true }
+    ];
+    function renderCustomizeFields() {
+      customizeFieldsList.innerHTML = '';
+      tableFields.forEach((field, idx) => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center mb-2';
+        row.setAttribute('draggable', 'true');
+        row.style.cursor = 'move';
+        row.style.background = 'rgba(255,255,255,0.02)';
+        row.style.borderRadius = '6px';
+        row.style.padding = '0.5rem 0.75rem';
+        row.innerHTML = `
+          <input type="checkbox" ${field.show ? 'checked' : ''} style="margin-right:1rem;" class="field-checkbox">
+          <span style="flex:1;font-size:1.05rem;">${field.label}</span>
+          <i class="fas fa-grip-lines" style="color:var(--text-secondary);font-size:1.2rem;"></i>
+        `;
+        // 拖拽排序
+        row.ondragstart = e => {
+          e.dataTransfer.setData('text/plain', idx);
+          row.style.opacity = '0.5';
+        };
+        row.ondragend = e => { row.style.opacity = '1'; };
+        row.ondragover = e => { e.preventDefault(); };
+        row.ondrop = e => {
+          e.preventDefault();
+          const from = parseInt(e.dataTransfer.getData('text/plain'));
+          const to = idx;
+          if (from !== to) {
+            const moved = tableFields.splice(from, 1)[0];
+            tableFields.splice(to, 0, moved);
+            renderCustomizeFields();
+          }
+        };
+        row.querySelector('.field-checkbox').onchange = ev => {
+          tableFields[idx].show = ev.target.checked;
+        };
+        customizeFieldsList.appendChild(row);
+      });
+    }
+    customizeFieldsBtn.onclick = () => {
+      customizeFieldsModal.style.display = 'flex';
+      renderCustomizeFields();
+    };
+    closeCustomizeFieldsBtn.onclick = cancelCustomizeFieldsBtn.onclick = () => {
+      customizeFieldsModal.style.display = 'none';
+    };
+    saveCustomizeFieldsBtn.onclick = () => {
+      // 可在此处保存tableFields到后端或本地，并刷新表格显示字段
+      customizeFieldsModal.style.display = 'none';
+    };
+    customizeFieldsModal.onclick = e => { if (e.target === customizeFieldsModal) customizeFieldsModal.style.display = 'none'; };
+
+    // Analytics Tab 交互逻辑
+    // 1. Chart.js 静态演示数据
+    const analyticsChartColors = [
+      '#4F8CFF', '#FFB74D', '#81C784', '#E57373'
+    ];
+    const analyticsChartLabels = ['2024-05-01', '2024-05-02', '2024-05-03', '2024-05-04', '2024-05-05', '2024-05-06', '2024-05-07'];
+    const analyticsChartData = {
+      'Yanwen': [5.2, 4.8, 5.0, 4.7, 5.1, 5.3, 4.9],
+      'Global Express': [4.5, 4.2, 4.6, 4.3, 4.7, 4.8, 4.4],
+      'SF Express': [6.1, 6.0, 5.9, 6.2, 6.3, 6.1, 6.0],
+      'DHL': [3.2, 3.1, 3.3, 3.0, 3.4, 3.2, 3.1]
+    };
+    let analyticsChartInstance;
+    function renderAnalyticsChart(granularity = 'day') {
+      const ctx = document.getElementById('transit-time-chart').getContext('2d');
+      if (analyticsChartInstance) analyticsChartInstance.destroy();
+      // 生成不同粒度的静态数据
+      let labels = analyticsChartLabels;
+      if (granularity === 'week') labels = ['2024-W18', '2024-W19'];
+      if (granularity === 'month') labels = ['2024-05', '2024-06'];
+      const datasets = Object.keys(analyticsChartData).map((provider, idx) => ({
+        label: provider,
+        data: granularity === 'day' ? analyticsChartData[provider] : (granularity === 'week' ? [5.0 + idx*0.2, 4.8 + idx*0.2] : [5.1 + idx*0.2, 4.9 + idx*0.2]),
+        backgroundColor: analyticsChartColors[idx % analyticsChartColors.length],
+        borderRadius: 6,
+        maxBarThickness: 32
+      }));
+      analyticsChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: true, position: 'top' },
+            tooltip: { enabled: true }
+          },
+          scales: {
+            x: { title: { display: true, text: '时间段' } },
+            y: { title: { display: true, text: '平均运输时效 (天)' }, beginAtZero: true }
+          }
+        }
+      });
+    }
+    // Granularity button group
+    function setGranularityActive(granularity) {
+      document.querySelectorAll('.granularity-btn').forEach(btn => {
+        if (btn.dataset.granularity === granularity) btn.classList.add('active');
+        else btn.classList.remove('active');
+      });
+    }
+    document.querySelectorAll('.granularity-btn').forEach(btn => {
+      btn.onclick = function() {
+        setGranularityActive(this.dataset.granularity);
+        renderAnalyticsChart(this.dataset.granularity);
+      };
+    });
+    setGranularityActive('day');
+    renderAnalyticsChart('day');
+
+    // 2. 导出按钮交互（模拟）
+    document.getElementById('analytics-export-btn').onclick = function() {
+      alert('Data exported (demo only)');
+    };
+    document.getElementById('analytics-table-export-btn').onclick = function() {
+      alert('Table data exported (demo only)');
+    };
+
+    // 3. 数据表格排序与分页（静态演示）
+    function sortTable(table, col, type, asc) {
+      const tbody = table.tBodies[0];
+      const rows = Array.from(tbody.rows);
+      rows.sort((a, b) => {
+        let v1 = a.cells[col].innerText, v2 = b.cells[col].innerText;
+        if (type === 'number') {
+          v1 = parseFloat(v1); v2 = parseFloat(v2);
+          if (isNaN(v1)) v1 = 0; if (isNaN(v2)) v2 = 0;
+        }
+        return asc ? (v1 > v2 ? 1 : -1) : (v1 < v2 ? 1 : -1);
+      });
+      rows.forEach(row => tbody.appendChild(row));
+    }
+    const analyticsTable = document.getElementById('analytics-data-table');
+    let analyticsTableSortCol = -1, analyticsTableSortAsc = true;
+    analyticsTable.querySelectorAll('th').forEach((th, idx) => {
+      th.onclick = function() {
+        const type = th.getAttribute('data-sort') || 'string';
+        if (analyticsTableSortCol === idx) analyticsTableSortAsc = !analyticsTableSortAsc;
+        else { analyticsTableSortCol = idx; analyticsTableSortAsc = true; }
+        sortTable(analyticsTable, idx, type, analyticsTableSortAsc);
+        analyticsTable.querySelectorAll('th').forEach(t => t.classList.remove('active'));
+        th.classList.add('active');
+      };
+    });
+    // 分页（静态演示，5条/页）
+    const analyticsTablePagination = document.getElementById('analytics-table-pagination');
+    const analyticsTableRows = Array.from(analyticsTable.tBodies[0].rows);
+    const pageSize = 5;
+    let currentPage = 1;
+    function renderAnalyticsTablePage(page) {
+      analyticsTableRows.forEach((row, idx) => {
+        row.style.display = (idx >= (page-1)*pageSize && idx < page*pageSize) ? '' : 'none';
+      });
+      analyticsTablePagination.innerHTML = '';
+      const totalPages = Math.ceil(analyticsTableRows.length / pageSize);
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'pagination-btn' + (i === page ? ' active' : '');
+        btn.innerText = i;
+        btn.onclick = () => { currentPage = i; renderAnalyticsTablePage(i); };
+        analyticsTablePagination.appendChild(btn);
+      }
+    }
+    renderAnalyticsTablePage(1);
+
+    // Tracking Lookup Tab 交互
+    const trackingInput = document.getElementById('tracking-number-input');
+    const trackingSearchBtn = document.getElementById('tracking-lookup-search');
+    const trackingResetBtn = document.getElementById('tracking-lookup-reset');
+    const trackingResult = document.getElementById('tracking-lookup-result');
+    const trackingForm = document.getElementById('tracking-lookup-form');
+    const trackingScreenshotBtn = document.getElementById('tracking-lookup-screenshot');
+    function resetTrackingLookup() {
+      trackingInput.value = '';
+      trackingResult.style.display = 'none';
+      trackingResetBtn.style.display = 'none';
+      trackingInput.disabled = false;
+      trackingSearchBtn.disabled = false;
+    }
+    trackingSearchBtn.onclick = function() {
+      if (trackingInput.value.trim() !== '') {
+        trackingResult.style.display = '';
+        trackingResetBtn.style.display = '';
+        trackingInput.disabled = true;
+        trackingSearchBtn.disabled = true;
+      }
+    };
+    trackingResetBtn.onclick = resetTrackingLookup;
+    // 回车也可触发查询
+    trackingInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') trackingSearchBtn.click();
+    });
+    // 截图功能
+    if (trackingScreenshotBtn) {
+      trackingScreenshotBtn.onclick = function() {
+        html2canvas(document.getElementById('tracking-lookup-result')).then(canvas => {
+          const link = document.createElement('a');
+          link.download = 'tracking-detail.png';
+          link.href = canvas.toDataURL();
+          link.click();
+        });
+      };
+    }
+    // 初始状态
+    resetTrackingLookup();
+
+    // TRACKING NUMBER 和 VIRTUAL TRACKING NUMBER 的复制功能
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const text = this.getAttribute('data-text');
+        navigator.clipboard.writeText(text).then(() => {
+          // 可选：显示复制成功提示
+          const originalColor = this.style.color;
+          this.style.color = '#4CAF50';
+          setTimeout(() => { this.style.color = originalColor; }, 1000);
+        });
+      });
+    });
+
+    // Re-sync按钮交互效果
+    document.getElementById('resync-btn').addEventListener('click', function() {
+      // 1. 禁用按钮并添加旋转效果
+      const btn = this;
+      const icon = btn.querySelector('i');
+      btn.disabled = true;
+      icon.classList.add('icon-spin');
+      
+      // 2. 3秒后显示成功提示
+      setTimeout(function() {
+        // 创建成功提示
+        const toast = document.createElement('div');
+        toast.className = 'success-toast';
+        toast.innerHTML = '<i class="fas fa-check-circle"></i> Data re-synchronized successfully';
+        document.body.appendChild(toast);
+        
+        // 显示提示
+        setTimeout(() => toast.classList.add('show'), 10);
+        
+        // 恢复按钮状态
+        btn.disabled = false;
+        icon.classList.remove('icon-spin');
+        
+        // 1秒后隐藏提示
+        setTimeout(function() {
+          toast.classList.remove('show');
+          // 动画结束后移除元素
+          setTimeout(() => toast.remove(), 300);
+        }, 1000);
+      }, 3000);
+    });
+
+    // 表格排序功能
+    function initTableSorting() {
+      const table = document.querySelector('.data-table');
+      const tbody = table.querySelector('tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      let currentSortField = 'order-date';
+      let currentSortDirection = 'desc';
+      
+      // 解析日期值
+      function parseDate(dateStr) {
+        if (!dateStr) return new Date(0);
+        // 处理日期+时间格式 (2023-12-29 14:30)
+        if (dateStr.includes(' ')) {
+          return new Date(dateStr.replace(' ', 'T'));
+        }
+        // 处理纯日期格式 (2023-12-29)
+        return new Date(dateStr);
+      }
+      
+      // 解析时间值 (例如: 4d, 5h 等)
+      function parseTimeValue(timeStr) {
+        if (!timeStr) return 0;
+        // 移除非数字字符
+        const numValue = parseInt(timeStr.replace(/\D/g, ''));
+        return isNaN(numValue) ? 0 : numValue;
+      }
+      
+      // 排序函数
+      function sortTable(sortField, direction) {
+        currentSortField = sortField;
+        currentSortDirection = direction;
+        
+        // 获取要排序的列的索引
+        let columnIndex;
+        switch(sortField) {
+          case 'transit-time': columnIndex = 6; break; // Transit Time 是第7列
+          case 'order-date': columnIndex = 7; break;   // Order Date 是第8列
+          case 'fulfillment-date': columnIndex = 9; break; // Fulfillment Date 是第10列
+          case 'checkpoint-time': columnIndex = 13; break; // Last Checkpoint Time 是第14列
+          case 'residence-time': columnIndex = 14; break;  // Residence Time 是第15列
+          default: return;
+        }
+        
+        // 排序行
+        rows.sort((a, b) => {
+          const aValue = a.cells[columnIndex].textContent.trim();
+          const bValue = b.cells[columnIndex].textContent.trim();
+          let comparison;
+          
+          // 根据列类型处理排序
+          if (sortField === 'order-date' || sortField === 'fulfillment-date' || sortField === 'checkpoint-time') {
+            // 日期排序
+            comparison = parseDate(aValue) - parseDate(bValue);
+          } else {
+            // 时间值排序 (Transit Time, Residence Time)
+            comparison = parseTimeValue(aValue) - parseTimeValue(bValue);
+          }
+          
+          // 根据方向调整排序
+          return direction === 'asc' ? comparison : -comparison;
+        });
+        
+        // 重新添加排序后的行
+        rows.forEach(row => tbody.appendChild(row));
+        
+        // 更新表头排序指示器
+        document.querySelectorAll('.data-table th.sortable').forEach(th => {
+          th.classList.remove('sorting-asc', 'sorting-desc');
+          if (th.dataset.sort === sortField) {
+            th.classList.add(direction === 'asc' ? 'sorting-asc' : 'sorting-desc');
+          }
+        });
+      }
+      
+      // 绑定点击事件
+      document.querySelectorAll('.data-table th.sortable').forEach(th => {
+        th.addEventListener('click', () => {
+          const sortField = th.dataset.sort;
+          const direction = (sortField === currentSortField && currentSortDirection === 'asc') ? 'desc' : 'asc';
+          sortTable(sortField, direction);
+        });
+      });
+      
+      // 默认排序 - Order Date 倒序
+      sortTable('order-date', 'desc');
+    }
+    
+    // 初始化表格排序
+    document.addEventListener('DOMContentLoaded', initTableSorting);
+  </script>
+</body>
+</html> 

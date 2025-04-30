@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>物流信息管理 - 虚拟物流单系统</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- 页面头部 -->
+  <header>
+    <div class="container">
+      <h1>虚拟物流单系统</h1>
+    </div>
+  </header>
+
+  <!-- 主内容区域 -->
+  <main class="container">
+    <div class="flex justify-between items-center mb-4">
+      <h2>物流信息管理</h2>
+      <div>
+        <a href="rule-config.html" class="btn btn-outline">
+          <i class="fas fa-cog"></i> 规则配置
+        </a>
+        <a href="tracking-lookup.html" class="btn btn-outline">
+          <i class="fas fa-search"></i> 查询页面
+        </a>
+      </div>
+    </div>
+
+    <!-- 筛选条件区域 -->
+    <div class="filter-section">
+      <div class="form-group">
+        <input type="text" class="form-control" placeholder="订单号 / 收件人 / 原单号 / 虚拟单号">
+      </div>
+      <div class="form-group">
+        <select class="form-control">
+          <option value="">全部状态</option>
+          <option value="generated">已生成虚拟单号</option>
+          <option value="not_generated">未生成</option>
+          <option value="queried">已查询</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <input type="date" class="form-control" placeholder="开始日期">
+      </div>
+      <div class="form-group">
+        <input type="date" class="form-control" placeholder="结束日期">
+      </div>
+      <button class="btn btn-primary">
+        <i class="fas fa-search"></i> 搜索
+      </button>
+      <button class="btn btn-outline">
+        <i class="fas fa-redo"></i> 重置
+      </button>
+    </div>
+
+    <!-- 表格展示区域 -->
+    <div class="card">
+      <table class="table-hover">
+        <thead>
+          <tr>
+            <th>订单号</th>
+            <th>收件人</th>
+            <th>原始物流单号</th>
+            <th>虚拟物流单号</th>
+            <th>当前状态</th>
+            <th>更新时间</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 表格数据行 -->
+          <tr>
+            <td>ORD-10234</td>
+            <td>John Smith</td>
+            <td><a href="#" data-drawer-target="original-tracking-drawer">YT1234567890</a></td>
+            <td><a href="tracking-lookup.html?number=GE7890123456" target="_blank">GE7890123456</a></td>
+            <td>In Transit</td>
+            <td>2023-10-14</td>
+            <td>
+              <button class="btn btn-outline btn-sm" data-drawer-target="tracking-detail-drawer">
+                <i class="fas fa-eye"></i> 查看详情
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td>ORD-10233</td>
+            <td>Sarah Johnson</td>
+            <td><a href="#" data-drawer-target="original-tracking-drawer">YT2345678901</a></td>
+            <td><a href="tracking-lookup.html?number=GE8901234567" target="_blank">GE8901234567</a></td>
+            <td>Delivered</td>
+            <td>2023-10-13</td>
+            <td>
+              <button class="btn btn-outline btn-sm" data-drawer-target="tracking-detail-drawer">
+                <i class="fas fa-eye"></i> 查看详情
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td>ORD-10232</td>
+            <td>Michael Brown</td>
+            <td><a href="#" data-drawer-target="original-tracking-drawer">YT3456789012</a></td>
+            <td><a href="tracking-lookup.html?number=GE9012345678" target="_blank">GE9012345678</a></td>
+            <td>Out for Delivery</td>
+            <td>2023-10-12</td>
+            <td>
+              <button class="btn btn-outline btn-sm" data-drawer-target="tracking-detail-drawer">
+                <i class="fas fa-eye"></i> 查看详情
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td>ORD-10231</td>
+            <td>Emily Davis</td>
+            <td><a href="#" data-drawer-target="original-tracking-drawer">YT4567890123</a></td>
+            <td><a href="tracking-lookup.html?number=GE0123456789" target="_blank">GE0123456789</a></td>
+            <td>In Transit</td>
+            <td>2023-10-11</td>
+            <td>
+              <button class="btn btn-outline btn-sm" data-drawer-target="tracking-detail-drawer">
+                <i class="fas fa-eye"></i> 查看详情
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td>ORD-10230</td>
+            <td>David Wilson</td>
+            <td><a href="#" data-drawer-target="original-tracking-drawer">YT5678901234</a></td>
+            <td><span class="tag">未生成</span></td>
+            <td>-</td>
+            <td>2023-10-10</td>
+            <td>
+              <button class="btn btn-primary btn-sm">
+                <i class="fas fa-magic"></i> 生成
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 分页 -->
+      <div class="flex justify-between items-center mt-4">
+        <div>
+          显示 1 到 5 条，共 23 条
+        </div>
+        <div class="flex gap-2">
+          <button class="btn btn-outline btn-sm">上一页</button>
+          <button class="btn btn-primary btn-sm">1</button>
+          <button class="btn btn-outline btn-sm">2</button>
+          <button class="btn btn-outline btn-sm">3</button>
+          <button class="btn btn-outline btn-sm">4</button>
+          <button class="btn btn-outline btn-sm">5</button>
+          <button class="btn btn-outline btn-sm">下一页</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 查看详情抽屉 -->
+  <div class="drawer" id="tracking-detail-drawer">
+    <div class="drawer-header">
+      <h3>订单物流详情</h3>
+      <button class="btn" data-drawer-close>
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="drawer-body">
+      <!-- 基本信息 -->
+      <div class="card">
+        <h4>基本信息</h4>
+        <table>
+          <tr>
+            <th>订单号</th>
+            <td>ORD-10234</td>
+          </tr>
+          <tr>
+            <th>收件人</th>
+            <td>John Smith</td>
+          </tr>
+          <tr>
+            <th>收件地址</th>
+            <td>123 Main St, New York, NY 10001, USA</td>
+          </tr>
+          <tr>
+            <th>创建时间</th>
+            <td>2023-10-05 14:30</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- 原始物流轨迹 -->
+      <div class="card">
+        <h4>原始物流轨迹</h4>
+        <div class="mb-2">
+          <span><strong>物流公司：</strong>Yanwen Express</span><br>
+          <span><strong>物流单号：</strong>YT1234567890</span>
+        </div>
+        <div class="tracking-timeline">
+          <div class="tracking-item">
+            <div class="tracking-date">2023-10-13 09:15</div>
+            <div class="tracking-location">Newark, USA</div>
+            <div class="tracking-status">Package in transit to delivery office</div>
+          </div>
+          <div class="tracking-item">
+            <div class="tracking-date">2023-10-10 18:45</div>
+            <div class="tracking-location">Los Angeles, USA</div>
+            <div class="tracking-status">Arrived at sorting facility</div>
+          </div>
+          <div class="tracking-item">
+            <div class="tracking-date">2023-10-07 14:30</div>
+            <div class="tracking-location">Guangzhou, China</div>
+            <div class="tracking-status">Departed from origin country</div>
+          </div>
+          <div class="tracking-item">
+            <div class="tracking-date">2023-10-05 16:20</div>
+            <div class="tracking-location">Shenzhen, China</div>
+            <div class="tracking-status">Shipment received by carrier</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 虚拟物流轨迹 -->
+      <div class="card">
+        <h4>虚拟物流轨迹</h4>
+        <div class="mb-2">
+          <span><strong>物流公司：</strong>Global Express</span><br>
+          <span><strong>物流单号：</strong>GE7890123456</span>
+        </div>
+        <div class="tracking-timeline">
+          <div class="tracking-item">
+            <div class="tracking-date">2023-10-14 16:30</div>
+            <div class="tracking-location">New York, USA</div>
+            <div class="tracking-status">Package in transit to final destination</div>
+          </div>
+          <div class="tracking-item">
+            <div class="tracking-date">2023-10-12 09:45</div>
+            <div class="tracking-location">Chicago, USA</div>
+            <div class="tracking-status">Arrived at regional hub</div>
+          </div>
+          <div class="tracking-item">
+            <div class="tracking-date">2023-10-09 14:30</div>
+            <div class="tracking-location">Denver, USA</div>
+            <div class="tracking-status">In transit</div>
+          </div>
+          <div class="tracking-item">
+            <div class="tracking-date">2023-10-07 08:15</div>
+            <div class="tracking-location">Los Angeles, USA</div>
+            <div class="tracking-status">Shipment received by carrier</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 操作按钮 -->
+      <div class="flex justify-between mt-4">
+        <button class="btn btn-outline" onclick="copyToClipboard('GE7890123456')">
+          <i class="fas fa-copy"></i> 复制虚拟单号
+        </button>
+        <button class="btn btn-primary">
+          <i class="fas fa-file-export"></i> 导出PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 原始物流查看抽屉 -->
+  <div class="drawer" id="original-tracking-drawer">
+    <div class="drawer-header">
+      <h3>原始物流轨迹</h3>
+      <button class="btn" data-drawer-close>
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="drawer-body">
+      <div class="mb-2">
+        <span><strong>物流公司：</strong>Yanwen Express</span><br>
+        <span><strong>物流单号：</strong>YT1234567890</span>
+      </div>
+      <div class="tracking-timeline">
+        <div class="tracking-item">
+          <div class="tracking-date">2023-10-13 09:15</div>
+          <div class="tracking-location">Newark, USA</div>
+          <div class="tracking-status">Package in transit to delivery office</div>
+        </div>
+        <div class="tracking-item">
+          <div class="tracking-date">2023-10-10 18:45</div>
+          <div class="tracking-location">Los Angeles, USA</div>
+          <div class="tracking-status">Arrived at sorting facility</div>
+        </div>
+        <div class="tracking-item">
+          <div class="tracking-date">2023-10-07 14:30</div>
+          <div class="tracking-location">Guangzhou, China</div>
+          <div class="tracking-status">Departed from origin country</div>
+        </div>
+        <div class="tracking-item">
+          <div class="tracking-date">2023-10-05 16:20</div>
+          <div class="tracking-location">Shenzhen, China</div>
+          <div class="tracking-status">Shipment received by carrier</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 抽屉背景遮罩 -->
+  <div class="drawer-backdrop"></div>
+
+  <!-- JavaScript 文件 -->
+  <script src="js/main.js"></script>
+</body>
+</html> 
