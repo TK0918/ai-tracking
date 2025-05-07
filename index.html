@@ -751,18 +751,6 @@
           <div class="card-desc">Average delivery transit time</div>
         </div>
       </div>
-      <!-- 3. 条形图模块 -->
-      <div class="analytics-chart">
-        <div class="chart-header">
-          <span>Transit Time Over Time</span>
-          <div class="chart-granularity-group" id="analytics-chart-granularity-group">
-            <button type="button" class="granularity-btn active" data-granularity="day">Day</button>
-            <button type="button" class="granularity-btn" data-granularity="week">Week</button>
-            <button type="button" class="granularity-btn" data-granularity="month">Month</button>
-          </div>
-        </div>
-        <canvas id="transit-time-chart" height="120"></canvas>
-      </div>
       <!-- 4. 数据表格模块 -->
       <div class="analytics-table">
         <div class="table-tools">
@@ -1176,65 +1164,7 @@
     customizeFieldsModal.onclick = e => { if (e.target === customizeFieldsModal) customizeFieldsModal.style.display = 'none'; };
 
     // Analytics Tab 交互逻辑
-    // 1. Chart.js 静态演示数据
-    const analyticsChartColors = [
-      '#4F8CFF', '#FFB74D', '#81C784', '#E57373'
-    ];
-    const analyticsChartLabels = ['2024-05-01', '2024-05-02', '2024-05-03', '2024-05-04', '2024-05-05', '2024-05-06', '2024-05-07'];
-    const analyticsChartData = {
-      'Yanwen': [5.2, 4.8, 5.0, 4.7, 5.1, 5.3, 4.9],
-      'Global Express': [4.5, 4.2, 4.6, 4.3, 4.7, 4.8, 4.4],
-      'SF Express': [6.1, 6.0, 5.9, 6.2, 6.3, 6.1, 6.0],
-      'DHL': [3.2, 3.1, 3.3, 3.0, 3.4, 3.2, 3.1]
-    };
-    let analyticsChartInstance;
-    function renderAnalyticsChart(granularity = 'day') {
-      const ctx = document.getElementById('transit-time-chart').getContext('2d');
-      if (analyticsChartInstance) analyticsChartInstance.destroy();
-      // 生成不同粒度的静态数据
-      let labels = analyticsChartLabels;
-      if (granularity === 'week') labels = ['2024-W18', '2024-W19'];
-      if (granularity === 'month') labels = ['2024-05', '2024-06'];
-      const datasets = Object.keys(analyticsChartData).map((provider, idx) => ({
-        label: provider,
-        data: granularity === 'day' ? analyticsChartData[provider] : (granularity === 'week' ? [5.0 + idx*0.2, 4.8 + idx*0.2] : [5.1 + idx*0.2, 4.9 + idx*0.2]),
-        backgroundColor: analyticsChartColors[idx % analyticsChartColors.length],
-        borderRadius: 6,
-        maxBarThickness: 32
-      }));
-      analyticsChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: { labels, datasets },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: true, position: 'top' },
-            tooltip: { enabled: true }
-          },
-          scales: {
-            x: { title: { display: true, text: '时间段' } },
-            y: { title: { display: true, text: '平均运输时效 (天)' }, beginAtZero: true }
-          }
-        }
-      });
-    }
-    // Granularity button group
-    function setGranularityActive(granularity) {
-      document.querySelectorAll('.granularity-btn').forEach(btn => {
-        if (btn.dataset.granularity === granularity) btn.classList.add('active');
-        else btn.classList.remove('active');
-      });
-    }
-    document.querySelectorAll('.granularity-btn').forEach(btn => {
-      btn.onclick = function() {
-        setGranularityActive(this.dataset.granularity);
-        renderAnalyticsChart(this.dataset.granularity);
-      };
-    });
-    setGranularityActive('day');
-    renderAnalyticsChart('day');
-
-    // 2. 导出按钮交互（模拟）
+    // 导出按钮交互（模拟）
     document.getElementById('analytics-export-btn').onclick = function() {
       alert('Data exported (demo only)');
     };
