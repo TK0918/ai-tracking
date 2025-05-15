@@ -121,36 +121,6 @@
       color: var(--primary-color);
     }
     /* Analytics Tab 样式 */
-    .analytics-filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1.5rem;
-      align-items: flex-end;
-      margin-bottom: 2rem;
-      background: var(--card-bg, #fff);
-      padding: 1.2rem 1.5rem 1rem 1.5rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    }
-    .analytics-filters .filter-group {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .analytics-filters label {
-      font-weight: 500;
-      margin-right: 0.3rem;
-    }
-    .analytics-filters select[multiple] {
-      min-width: 120px;
-      max-width: 180px;
-      height: 2.2em;
-      font-size: 1rem;
-    }
-    .analytics-filters .btn-primary {
-      margin-left: auto;
-      min-width: 120px;
-    }
     .analytics-cards {
       display: flex;
       gap: 2rem;
@@ -264,34 +234,6 @@
     .analytics-table .pagination-btn.active, .analytics-table .pagination-btn:hover {
       background: var(--primary-color);
       color: #fff;
-    }
-    .styled-filter-bar {
-      background: var(--card-bg, #fff);
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-      padding: 1.2rem 1.5rem 1rem 1.5rem;
-      margin-bottom: 2rem;
-    }
-    .styled-filter-bar .filter-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      align-items: center;
-    }
-    .styled-filter-bar .form-control {
-      min-width: 140px;
-      max-width: 180px;
-      font-size: 1rem;
-      padding: 0.4rem 0.7rem;
-      border-radius: 5px;
-      border: 1px solid var(--border-color, #e0e0e0);
-      background: #fff;
-    }
-    .styled-filter-bar select[multiple] {
-      height: 2.2em;
-    }
-    .styled-filter-bar .btn-primary {
-      min-width: 120px;
     }
     .analytics-cards-wide {
       display: flex;
@@ -587,11 +529,13 @@
           <option>AfterSell TY Original</option>
           <option>UpCart Upsell</option>
         </select>
-        <button class="btn btn-outline" id="customize-fields-btn" type="button"><i class="fas fa-sliders-h"></i> Customize</button>
       </div>
 
       <!-- 列表表格 -->
       <div class="table-responsive">
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 0.5rem;">
+          <button class="btn btn-outline" id="customize-fields-btn" type="button"><i class="fas fa-sliders-h"></i> Customize</button>
+        </div>
         <table class="data-table">
           <thead>
             <tr>
@@ -718,26 +662,24 @@
     <!-- Analytics Tab内容区 -->
     <div id="tab-analytics" class="tab-content" style="display:none;">
       <!-- 1. 过滤器区域 -->
-      <div class="analytics-filters styled-filter-bar">
-        <div class="filter-bar">
-          <input type="date" class="form-control" id="analytics-date-from" placeholder="Start date">
-          <span style="margin:0 0.5rem;">-</span>
-          <input type="date" class="form-control" id="analytics-date-to" placeholder="End date">
-          <select class="form-control" id="analytics-provider-select" multiple style="min-width:140px;">
-            <option selected>Yanwen</option>
-            <option>Global Express</option>
-            <option>SF Express</option>
-            <option>DHL</option>
-          </select>
-          <select class="form-control" id="analytics-country-select" multiple style="min-width:140px;">
-            <option selected>United States</option>
-            <option>Canada</option>
-            <option>United Kingdom</option>
-            <option>Australia</option>
-            <option>Mexico</option>
-          </select>
-          <button class="btn btn-primary" id="analytics-export-btn" type="button"><i class="fas fa-download"></i> Export Data</button>
-        </div>
+      <div class="filter-bar">
+        <input type="date" class="form-control" id="analytics-date-from" placeholder="Start date">
+        <input type="date" class="form-control" id="analytics-date-to" placeholder="End date">
+        <select class="form-control" id="analytics-provider-select">
+          <option value="">Carrier</option>
+          <option>Yanwen</option>
+          <option>Global Express</option>
+          <option>SF Express</option>
+          <option>DHL</option>
+        </select>
+        <select class="form-control" id="analytics-country-select">
+          <option value="">Destination</option>
+          <option>United States</option>
+          <option>Canada</option>
+          <option>United Kingdom</option>
+          <option>Australia</option>
+          <option>Mexico</option>
+        </select>
       </div>
       <!-- 2. 数据卡片 -->
       <div class="analytics-cards analytics-cards-wide">
@@ -1166,9 +1108,6 @@
 
     // Analytics Tab 交互逻辑
     // 导出按钮交互（模拟）
-    document.getElementById('analytics-export-btn').onclick = function() {
-      alert('Data exported (demo only)');
-    };
     document.getElementById('analytics-table-export-btn').onclick = function() {
       alert('Table data exported (demo only)');
     };
@@ -1178,7 +1117,8 @@
       const tbody = table.tBodies[0];
       const rows = Array.from(tbody.rows);
       rows.sort((a, b) => {
-        let v1 = a.cells[col].innerText, v2 = b.cells[col].innerText;
+        let v1 = a.cells[col].textContent.trim();
+        let v2 = b.cells[col].textContent.trim();
         if (type === 'number') {
           v1 = parseFloat(v1); v2 = parseFloat(v2);
           if (isNaN(v1)) v1 = 0; if (isNaN(v2)) v2 = 0;

@@ -242,9 +242,6 @@
             <li><span class="history-time">2024-05-01 12:00</span> <span class="history-status">Ordered</span> <span class="history-location">Shanghai, China</span></li>
           </ul>
         </div>
-        <div class="tracking-action-row">
-          <button class="btn btn-outline" id="tracking-screenshot-btn">Screenshot Progress & History</button>
-        </div>
       </div>
     </div>
   </main>
@@ -301,18 +298,6 @@
     trackingInput.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') trackingSearchBtn.click();
     });
-    // 截图功能
-    const trackingScreenshotBtn = document.getElementById('tracking-screenshot-btn');
-    if (trackingScreenshotBtn) {
-      trackingScreenshotBtn.onclick = function() {
-        html2canvas(trackingResultSection).then(canvas => {
-          const link = document.createElement('a');
-          link.download = 'tracking-detail.png';
-          link.href = canvas.toDataURL();
-          link.click();
-        });
-      };
-    }
     // 初始状态
     resetTrackingLookup();
   </script>
